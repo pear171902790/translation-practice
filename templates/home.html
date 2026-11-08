@@ -1,0 +1,18 @@
+{{define "home"}}
+{{template "head" .}}
+    <section class="card">
+      <p class="eyebrow">练习</p>
+      <h1>把中文句子练成英文</h1>
+      <p class="lede">随机抽出一句你保存过的中文，先自己翻译，再和参考译文并排对照。</p>
+      <p class="meta">已保存 {{.Count}} 句</p>
+      <div class="actions">
+        {{if .Count}}
+          <a class="button" href="/practice">开始练习</a>
+          <a class="button secondary" href="/add">添加句子</a>
+        {{else}}
+          <a class="button" href="/add">添加第一句</a>
+        {{end}}
+      </div>
+    </section>
+{{template "foot" .}}
+{{end}}

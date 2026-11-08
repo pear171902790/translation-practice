@@ -1,0 +1,39 @@
+{{define "add"}}
+{{template "head" .}}
+    <section class="card">
+      <h1>添加句子</h1>
+      <p class="lede">记下想练的中文句子，以及你认可的英文译文。</p>
+      {{if .Flash}}<p class="flash">{{.Flash}}</p>{{end}}
+      <form method="post" action="/add">
+        <label for="chinese">中文句子</label>
+        <textarea id="chinese" name="chinese" rows="3" required autofocus placeholder="例如：今天天气很好。">{{.Chinese}}</textarea>
+        <label for="english">英文译文</label>
+        <textarea id="english" name="english" rows="3" required placeholder="例如：The weather is nice today.">{{.English}}</textarea>
+        {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
+        <button type="submit">保存</button>
+      </form>
+    </section>
+    {{if .Sentences}}
+    <section class="card">
+      <h2>已保存 {{.Count}} 句</h2>
+      <ul class="list">
+        {{range .Sentences}}
+        <li>
+          <div>
+            <p class="zh">{{.Chinese}}</p>
+            <p class="en">{{.English}}</p>
+            <p class="meta">{{.CreatedLabel}}</p>
+          </div>
+          <div class="row-actions">
+            <a class="link" href="/practice?id={{.ID}}">练习</a>
+            <form method="post" action="/sentences/{{.ID}}/delete" onsubmit="return confirm('删除这句？')">
+              <button class="quiet" type="submit">删除</button>
+            </form>
+          </div>
+        </li>
+        {{end}}
+      </ul>
+    </section>
+    {{end}}
+{{template "foot" .}}
+{{end}}
