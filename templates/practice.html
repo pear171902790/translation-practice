@@ -1,0 +1,55 @@
+{{define "practice"}}
+{{template "head" .}}
+    {{if not .Sentence}}
+    <section class="card">
+      {{if .Error}}
+      <h1>找不到这句</h1>
+      <p class="lede">{{.Error}}</p>
+      <div class="actions">
+        <a class="button" href="/practice">返回练习</a>
+      </div>
+      {{else}}
+      <h1>还没有句子</h1>
+      <p class="lede">先添加一句中文和对应的英文译文，再回来练习。</p>
+      <div class="actions">
+        <a class="button" href="/add">去添加</a>
+      </div>
+      {{end}}
+    </section>
+    {{else}}
+    <section class="card">
+      <p class="eyebrow">中文</p>
+      <h1 class="sentence">{{.Sentence.Chinese}}</h1>
+      {{if .Revealed}}
+      <div class="compare">
+        <div>
+          <p class="eyebrow">你的译文</p>
+          <p class="answer">{{.Attempt}}</p>
+        </div>
+        <div class="reference">
+          <p class="eyebrow">参考译文</p>
+          <p class="answer">{{.Sentence.English}}</p>
+        </div>
+      </div>
+      {{if .Match}}
+      <p class="badge ok">和参考译文一致</p>
+      {{else}}
+      <p class="badge">对照一下用词和语序</p>
+      {{end}}
+      <div class="actions">
+        <a class="button" href="/practice">再练一句</a>
+        <a class="button secondary" href="/practice?id={{.Sentence.ID}}">再试一次</a>
+      </div>
+      {{else}}
+      <form method="post" action="/practice">
+        <input type="hidden" name="id" value="{{.Sentence.ID}}">
+        <label for="attempt">你的英文译文</label>
+        <textarea id="attempt" name="attempt" rows="4" required autofocus autocomplete="off" placeholder="写下你的英文…">{{.Attempt}}</textarea>
+        {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
+        <button type="submit">对照答案</button>
+      </form>
+      {{end}}
+    </section>
+    {{end}}
+{{template "foot" .}}
+{{end}}
