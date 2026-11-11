@@ -113,6 +113,50 @@ func TestAddRejectsBlankAndEscapesHTML(t *testing.T) {
 	}
 }
 
+func TestBlankAttemptRevealsReference(t *testing.T) {
+	srv := newTestServer(t)
+
+	form := url.Values{"chinese": {"今天天气很好。"}, "english": {"The weather is nice today."}}
+	req := httptest.NewRequest(http.MethodPost, "/add", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rr := httptest.NewRecorder()
+	srv.Handler().ServeHTTP(rr, req)
+	if rr.Code != http.StatusSeeOther {
+		t.Fatalf("save: %d", rr.Code)
+	}
+
+	req = httptest.NewRequest(http.MethodGet, "/practice", nil)
+	rr = httptest.NewRecorder()
+	srv.Handler().ServeHTTP(rr, req)
+	if strings.Contains(rr.Body.String(), "required") {
+		t.Fatal("empty answer is still blocked before submit")
+	}
+
+	for _, attempt := range []string{"", " \n\t "} {
+		form = url.Values{"id": {"1"}, "attempt": {attempt}}
+		req = httptest.NewRequest(http.MethodPost, "/practice", strings.NewReader(form.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rr = httptest.NewRecorder()
+		srv.Handler().ServeHTTP(rr, req)
+		body := rr.Body.String()
+		if rr.Code != http.StatusOK {
+			t.Fatalf("blank check %q: %d %s", attempt, rr.Code, body)
+		}
+		if !strings.Contains(body, "The weather is nice today.") {
+			t.Fatalf("reference hidden for %q: %s", attempt, body)
+		}
+		if strings.Contains(body, "请先写出你的英文译文。") {
+			t.Fatalf("blank attempt still rejected: %s", body)
+		}
+		if strings.Contains(body, "和参考译文一致") || strings.Contains(body, "对照一下用词和语序") {
+			t.Fatalf("blank attempt was scored like a written answer: %s", body)
+		}
+		if !strings.Contains(body, "还不会，先看参考译文。") {
+			t.Fatalf("missing skip note for %q: %s", attempt, body)
+		}
+	}
+}
+
 func TestNormalizeAnswer(t *testing.T) {
 	if normalizeAnswer("  Hello,   WORLD ") != "hello, world" {
 		t.Fatal(normalizeAnswer("  Hello,   WORLD "))

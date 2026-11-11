@@ -21,6 +21,7 @@
       <p class="eyebrow">中文</p>
       <h1 class="sentence">{{.Sentence.Chinese}}</h1>
       {{if .Revealed}}
+      {{if .Attempt}}
       <div class="compare">
         <div>
           <p class="eyebrow">你的译文</p>
@@ -36,6 +37,15 @@
       {{else}}
       <p class="badge">对照一下用词和语序</p>
       {{end}}
+      {{else}}
+      <div class="compare single">
+        <div class="reference">
+          <p class="eyebrow">参考译文</p>
+          <p class="answer">{{.Sentence.English}}</p>
+        </div>
+      </div>
+      <p class="badge">还不会，先看参考译文。</p>
+      {{end}}
       <div class="actions">
         <a class="button" href="/practice">再练一句</a>
         <a class="button secondary" href="/practice?id={{.Sentence.ID}}">再试一次</a>
@@ -44,7 +54,7 @@
       <form method="post" action="/practice">
         <input type="hidden" name="id" value="{{.Sentence.ID}}">
         <label for="attempt">你的英文译文</label>
-        <textarea id="attempt" name="attempt" rows="4" required autofocus autocomplete="off" placeholder="写下你的英文…">{{.Attempt}}</textarea>
+        <textarea id="attempt" name="attempt" rows="4" autofocus autocomplete="off" placeholder="写下你的英文…">{{.Attempt}}</textarea>
         {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
         <button type="submit">对照答案</button>
       </form>
