@@ -164,23 +164,17 @@ func (s *Server) practiceCheck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	attempt := strings.TrimSpace(r.FormValue("attempt"))
-	if attempt == "" {
-		s.render(w, "practice", http.StatusBadRequest, pageData{
-			Title:    "练习",
-			Page:     "practice",
-			Sentence: &sentence,
-			Error:    "请先写出你的英文译文。",
-		})
-		return
-	}
-	s.render(w, "practice", http.StatusOK, pageData{
+	data := pageData{
 		Title:    "练习",
 		Page:     "practice",
 		Sentence: &sentence,
 		Attempt:  attempt,
 		Revealed: true,
-		Match:    normalizeAnswer(attempt) == normalizeAnswer(sentence.English),
-	})
+	}
+	if attempt != "" {
+		data.Match = normalizeAnswer(attempt) == normalizeAnswer(sentence.English)
+	}
+	s.render(w, "practice", http.StatusOK, data)
 }
 
 func (s *Server) delete(w http.ResponseWriter, r *http.Request) {
